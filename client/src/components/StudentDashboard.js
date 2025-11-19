@@ -161,135 +161,112 @@ export default function StudentDashboard({ onLogout }) {
   };
 
   return (
-    <div style={{ padding: "25px" }}>
-      <h1>Student Dashboard</h1>
-
-      {/* User info and logout */}
-      <div style={{ marginBottom: "20px" }}>
-        <p><b>Logged in as:</b> Student ({user.email})</p>
-        {teacher && <p><b>Your Teacher:</b> {teacher.email}</p>}
+    <div className="dashboard-container">
+      {/* Header Section */}
+      <div className="dashboard-header">
+        <div className="dashboard-title-section">
+          <h1>Student Dashboard</h1>
+          <div className="dashboard-user-info">
+            <div>
+              <strong>Logged in as:</strong> {user.email}
+            </div>
+            {teacher && (
+              <div>
+                <strong>Your Teacher:</strong> {teacher.email}
+              </div>
+            )}
+          </div>
+        </div>
         
-        <button
-          onClick={onLogout}
-          style={{
-            float: "right",
-            background: "red",
-            color: "white",
-            padding: "7px 15px",
-            borderRadius: "6px",
-            cursor: "pointer"
-          }}
-        >
-          Logout
-        </button>
+        <div className="dashboard-actions">
+          <button onClick={onLogout} className="btn btn-danger btn-sm">
+            Logout
+          </button>
+        </div>
       </div>
 
-      {/* Create task button */}
+      {/* Create Task Button */}
       {!showForm && (
-        <button
-          onClick={() => setShowForm(true)}
-          style={{
-            background: "#0066ff",
-            color: "white",
-            padding: "10px 20px",
-            borderRadius: "6px",
-            marginBottom: "20px",
-            cursor: "pointer"
-          }}
-        >
-          + Create New Task
-        </button>
+        <div className="mb-2">
+          <button onClick={() => setShowForm(true)} className="btn btn-primary">
+            + Create New Task
+          </button>
+        </div>
       )}
 
-      {/* Task form (create or edit) */}
+      {/* Task Form (create or edit) */}
       {showForm && (
-        <div style={{
-          background: "#f8f8f8",
-          padding: "20px",
-          borderRadius: "10px",
-          marginBottom: "25px"
-        }}>
-          <h3>{editingTask ? "Edit Task" : "Create New Task"}</h3>
+        <div className="task-form">
+          <h3 className="task-form-title">
+            {editingTask ? "Edit Task" : "Create New Task"}
+          </h3>
           <form onSubmit={editingTask ? handleEditTask : handleCreateTask}>
-            <input
-              type="text"
-              placeholder="Task title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-              style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-            />
-            
-            <textarea
-              placeholder="Task description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              required
-              rows={3}
-              style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-            />
-            
-            <div style={{ marginBottom: "10px" }}>
-              <label>Progress: </label>
-              <select
-                value={formData.progress}
-                onChange={(e) => setFormData({ ...formData, progress: e.target.value })}
-                style={{ marginLeft: "10px", padding: "5px" }}
-              >
-                <option value="not-started">Not Started</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-            
-            <div style={{ marginBottom: "10px" }}>
-              <label>Due Date: </label>
+            <div className="task-form-grid">
+              {/* Task Title */}
               <input
-                type="date"
-                value={formData.dueDate}
-                onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                style={{ marginLeft: "10px", padding: "5px" }}
+                type="text"
+                placeholder="Task title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+                className="form-input"
               />
+              
+              {/* Task Description */}
+              <textarea
+                placeholder="Task description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                required
+              />
+              
+              {/* Progress and Due Date Row */}
+              <div className="task-form-row">
+                <div className="form-group">
+                  <label className="form-label">Progress:</label>
+                  <select
+                    value={formData.progress}
+                    onChange={(e) => setFormData({ ...formData, progress: e.target.value })}
+                    className="form-select"
+                  >
+                    <option value="not-started">Not Started</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Due Date:</label>
+                  <input
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+              
+              {/* Form Actions */}
+              <div className="task-form-actions">
+                <button type="submit" className="btn btn-primary">
+                  {editingTask ? "Update Task" : "Create Task"}
+                </button>
+                <button type="button" onClick={cancelForm} className="btn btn-secondary">
+                  Cancel
+                </button>
+              </div>
             </div>
-            
-            <button
-              type="submit"
-              style={{
-                background: "#0066ff",
-                color: "white",
-                padding: "8px 20px",
-                borderRadius: "6px",
-                marginRight: "10px",
-                cursor: "pointer"
-              }}
-            >
-              {editingTask ? "Update Task" : "Create Task"}
-            </button>
-            
-            <button
-              type="button"
-              onClick={cancelForm}
-              style={{
-                background: "#999",
-                color: "white",
-                padding: "8px 20px",
-                borderRadius: "6px",
-                cursor: "pointer"
-              }}
-            >
-              Cancel
-            </button>
           </form>
         </div>
       )}
 
-      {/* Progress filter */}
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ marginRight: "10px" }}>Filter by Progress:</label>
+      {/* Progress Filter */}
+      <div className="filter-section">
+        <label className="filter-label">Filter by Progress:</label>
         <select
           value={filterProgress}
           onChange={(e) => setFilterProgress(e.target.value)}
-          style={{ padding: "5px" }}
+          className="form-select"
         >
           <option value="all">All</option>
           <option value="not-started">Not Started</option>
@@ -298,82 +275,66 @@ export default function StudentDashboard({ onLogout }) {
         </select>
       </div>
 
-      <h2>My Tasks</h2>
-
-      {/* Tasks table */}
-      <table border="1" width="100%" style={{ borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ background: "#f0f0f0" }}>
-            <th style={{ padding: "10px" }}>Title</th>
-            <th style={{ padding: "10px" }}>Description</th>
-            <th style={{ padding: "10px" }}>Due Date</th>
-            <th style={{ padding: "10px" }}>Progress</th>
-            <th style={{ padding: "10px" }}>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {tasks.length === 0 ? (
-            <tr>
-              <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
-                No tasks found. Create your first task!
-              </td>
-            </tr>
-          ) : (
-            tasks.map((task) => (
-              <tr key={task._id}>
-                <td style={{ padding: "10px" }}>{task.title}</td>
-                <td style={{ padding: "10px" }}>{task.description}</td>
-                <td style={{ padding: "10px" }}>
-                  {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}
-                </td>
-                <td style={{ padding: "10px" }}>
-                  <span style={{
-                    padding: "3px 8px",
-                    borderRadius: "4px",
-                    background: 
-                      task.progress === "completed" ? "#d4edda" :
-                      task.progress === "in-progress" ? "#fff3cd" : "#f8d7da",
-                    color:
-                      task.progress === "completed" ? "#155724" :
-                      task.progress === "in-progress" ? "#856404" : "#721c24"
-                  }}>
-                    {task.progress === "not-started" ? "Not Started" :
-                     task.progress === "in-progress" ? "In Progress" : "Completed"}
-                  </span>
-                </td>
-                <td style={{ padding: "10px" }}>
-                  <button
-                    onClick={() => startEdit(task)}
-                    style={{
-                      padding: "5px 12px",
-                      background: "#0066ff",
-                      color: "white",
-                      borderRadius: "5px",
-                      marginRight: "5px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTask(task._id)}
-                    style={{
-                      padding: "5px 12px",
-                      background: "#dc3545",
-                      color: "white",
-                      borderRadius: "5px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
+      {/* Tasks Section */}
+      <div className="card">
+        <h2 className="card-title">My Tasks</h2>
+        
+        <div className="table-container">
+          <table className="task-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>Progress</th>
+                <th>Actions</th>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            </thead>
+
+            <tbody>
+              {tasks.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="table-empty">
+                    No tasks found. Create your first task!
+                  </td>
+                </tr>
+              ) : (
+                tasks.map((task) => (
+                  <tr key={task._id}>
+                    <td>{task.title}</td>
+                    <td>{task.description}</td>
+                    <td>
+                      {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}
+                    </td>
+                    <td>
+                      <span className={`status-badge ${task.progress}`}>
+                        {task.progress === "not-started" ? "Not Started" :
+                         task.progress === "in-progress" ? "In Progress" : "Completed"}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="table-actions">
+                        <button
+                          onClick={() => startEdit(task)}
+                          className="btn btn-primary btn-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTask(task._id)}
+                          className="btn btn-danger btn-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

@@ -68,127 +68,85 @@ function Login({ onLoginSuccess, onSignup }) {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "400px", margin: "50px auto" }}>
-      <h2>Login</h2>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2 className="auth-title">Welcome Back</h2>
 
-      <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              // Clear error when user starts typing
-              if (errors.email) setErrors({ ...errors, email: null });
-            }}
-            style={{
-              width: "100%",
-              padding: "10px",
-              fontSize: "14px",
-              borderRadius: "4px",
-              border: errors.email ? "1px solid #dc3545" : "1px solid #ccc"
-            }}
-          />
-          {errors.email && (
-            <div style={{ color: "#dc3545", fontSize: "12px", marginTop: "5px" }}>
-              {errors.email}
-            </div>
-          )}
-        </div>
-
-        <div style={{ marginBottom: "15px" }}>
-          <div style={{ position: "relative" }}>
+        <form onSubmit={handleLogin} className="auth-form">
+          {/* Email Input */}
+          <div className="form-group">
             <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
+              type="email"
+              placeholder="Email"
+              value={email}
               onChange={(e) => {
-                setPassword(e.target.value);
+                setEmail(e.target.value);
                 // Clear error when user starts typing
-                if (errors.password) setErrors({ ...errors, password: null });
+                if (errors.email) setErrors({ ...errors, email: null });
               }}
-              style={{
-                width: "100%",
-                padding: "10px",
-                fontSize: "14px",
-                borderRadius: "4px",
-                border: errors.password ? "1px solid #dc3545" : "1px solid #ccc",
-                paddingRight: "40px"
-              }}
+              className={`form-input ${errors.email ? 'error' : ''}`}
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: "absolute",
-                right: "10px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontSize: "12px",
-                color: "#0066ff"
-              }}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
+            {errors.email && (
+              <div className="error-message">
+                {errors.email}
+              </div>
+            )}
           </div>
-          {errors.password && (
-            <div style={{ color: "#dc3545", fontSize: "12px", marginTop: "5px" }}>
-              {errors.password}
+
+          {/* Password Input */}
+          <div className="form-group">
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  // Clear error when user starts typing
+                  if (errors.password) setErrors({ ...errors, password: null });
+                }}
+                className={`form-input ${errors.password ? 'error' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="password-toggle"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
             </div>
-          )}
+            {errors.password && (
+              <div className="error-message">
+                {errors.password}
+              </div>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary btn-block"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        {/* Success/Error Message */}
+        {message && (
+          <div className={message.includes("successful") ? "success-message" : "error-banner"}>
+            {message}
+          </div>
+        )}
+
+        {/* Footer Link */}
+        <div className="auth-footer">
+          Don't have an account?{" "}
+          <button onClick={onSignup} className="auth-link">
+            Signup here
+          </button>
         </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: "100%",
-            padding: "10px",
-            background: loading ? "#ccc" : "#0066ff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            fontSize: "16px",
-            cursor: loading ? "not-allowed" : "pointer"
-          }}
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-
-      {message && (
-        <p style={{
-          marginTop: "15px",
-          padding: "10px",
-          borderRadius: "4px",
-          background: message.includes("successful") ? "#d4edda" : "#f8d7da",
-          color: message.includes("successful") ? "#155724" : "#721c24",
-          textAlign: "center"
-        }}>
-          {message}
-        </p>
-      )}
-
-      <p style={{ textAlign: "center", marginTop: "20px" }}>
-        Don't have an account?{" "}
-        <button
-          onClick={onSignup}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#0066ff",
-            textDecoration: "underline",
-            cursor: "pointer",
-            fontSize: "14px"
-          }}
-        >
-          Signup here
-        </button>
-      </p>
+      </div>
     </div>
   );
 }
