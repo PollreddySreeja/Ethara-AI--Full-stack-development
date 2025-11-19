@@ -35,6 +35,7 @@ const loginRateLimiter = (req, res, next) => {
   if (attemptData.count >= MAX_ATTEMPTS) {
     const remainingTime = Math.ceil((attemptData.resetTime - now) / 1000 / 60);
     return res.status(429).json({ 
+      success: false,
       message: `Too many login attempts. Please try again in ${remainingTime} minutes.` 
     });
   }
@@ -48,15 +49,18 @@ const loginRateLimiter = (req, res, next) => {
 router.post(
   "/signup",
   [
-    body("email").isEmail(),
-    body("password").isLength({ min: 6 }),
-    body("role").isIn(["student", "teacher"])
+    body("email").isEmail().withMessage("Valid email is required"),
+    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
+    body("role").isIn(["student", "teacher"]).withMessage("Role must be student or teacher")
   ],
   async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ 
+          success: false, 
+          message: errors.array()[0].msg || "Validation failed" 
+        });
       }
 
       const { email, password, role, teacherId } = req.body;
@@ -64,22 +68,34 @@ router.post(
       // Validate student requirements
       if (role === "student") {
         if (!teacherId) {
-          return res.status(400).json({ message: "teacherId required for students" });
+          return res.status(400).json({ 
+            success: false, 
+            message: "teacherId required for students" 
+          });
         }
 
         // Verify that teacherId refers to an existing user who is actually a teacher
         const teacher = await User.findById(teacherId);
         if (!teacher) {
-          return res.status(400).json({ message: "Invalid teacherId: teacher not found" });
+          return res.status(400).json({ 
+            success: false, 
+            message: "Invalid teacherId: teacher not found" 
+          });
         }
         if (teacher.role !== "teacher") {
-          return res.status(400).json({ message: "Invalid teacherId: specified user is not a teacher" });
+          return res.status(400).json({ 
+            success: false, 
+            message: "Invalid teacherId: specified user is not a teacher" 
+          });
         }
       }
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ message: "Email already registered" });
+        return res.status(400).json({ 
+          success: false, 
+          message: "Email already registered" 
+        });
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
@@ -93,9 +109,15 @@ router.post(
 
       await newUser.save();
 
-      res.json({ message: "User registered successfully" });
+      res.json({ 
+        success: true, 
+        data: { message: "User registered successfully" } 
+      });
     } catch (err) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ 
+        success: false, 
+        message: "Server error" 
+      });
     }
   }
 );
@@ -105,26 +127,35 @@ router.post(
   "/login",
   loginRateLimiter, // Apply rate limiting to prevent brute force attacks
   [
-    body("email").isEmail(),
-    body("password").exists()
+    body("email").isEmail().withMessage("Valid email is required"),
+    body("password").exists().withMessage("Password is required")
   ],
   async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ 
+          success: false, 
+          message: errors.array()[0].msg || "Validation failed" 
+        });
       }
 
       const { email, password } = req.body;
 
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ 
+          success: false, 
+          message: "Invalid credentials" 
+        });
       }
 
       const isMatch = await bcrypt.compare(password, user.passwordHash);
       if (!isMatch) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ 
+          success: false, 
+          message: "Invalid credentials" 
+        });
       }
 
       const token = jwt.sign(
@@ -134,17 +165,23 @@ router.post(
       );
 
       res.json({
-        message: "Login successful",
-        token,
-        user: {
-          id: user._id,
-          email: user.email,
-          role: user.role,
-          teacherId: user.teacherId
+        success: true,
+        data: {
+          message: "Login successful",
+          token,
+          user: {
+            id: user._id,
+            email: user.email,
+            role: user.role,
+            teacherId: user.teacherId
+          }
         }
       });
     } catch (err) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ 
+        success: false, 
+        message: "Server error" 
+      });
     }
   }
 );

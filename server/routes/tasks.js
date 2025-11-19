@@ -21,10 +21,16 @@ router.post("/", authMiddleware, async (req, res) => {
     });
 
     await task.save();
-    res.json(task);
+    res.json({ 
+      success: true, 
+      data: task 
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ 
+      success: false, 
+      message: "Server Error" 
+    });
   }
 });
 
@@ -57,7 +63,10 @@ router.get("/", authMiddleware, async (req, res) => {
         .sort({ createdAt: -1 })
         .populate("userId", "email role"); // Populate to show who owns each task
 
-      return res.json(allTasks);
+      return res.json({ 
+        success: true, 
+        data: allTasks 
+      });
     }
 
     // -----------------------------
@@ -72,10 +81,16 @@ router.get("/", authMiddleware, async (req, res) => {
       .sort({ createdAt: -1 })
       .populate("userId", "email");
 
-    res.json(userTasks);
+    res.json({ 
+      success: true, 
+      data: userTasks 
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ 
+      success: false, 
+      message: "Server Error" 
+    });
   }
 });
 
@@ -90,12 +105,18 @@ router.put("/:id", authMiddleware, async (req, res) => {
     const task = await Task.findById(req.params.id);
     
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(404).json({ 
+        success: false, 
+        message: "Task not found" 
+      });
     }
 
     // Only the task owner can update their task
     if (task.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to update this task" });
+      return res.status(403).json({ 
+        success: false, 
+        message: "Not authorized to update this task" 
+      });
     }
 
     // Update the task with new values
@@ -105,10 +126,16 @@ router.put("/:id", authMiddleware, async (req, res) => {
       { new: true, runValidators: true } // Run validators to ensure data integrity
     );
 
-    res.json(updated);
+    res.json({ 
+      success: true, 
+      data: updated 
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ 
+      success: false, 
+      message: "Server Error" 
+    });
   }
 });
 
@@ -121,19 +148,31 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     const task = await Task.findById(req.params.id);
     
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(404).json({ 
+        success: false, 
+        message: "Task not found" 
+      });
     }
 
     // Only the task owner can delete their task
     if (task.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to delete this task" });
+      return res.status(403).json({ 
+        success: false, 
+        message: "Not authorized to delete this task" 
+      });
     }
 
     await Task.findByIdAndDelete(req.params.id);
-    res.json({ msg: "Task deleted successfully" });
+    res.json({ 
+      success: true, 
+      data: { message: "Task deleted successfully" } 
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ 
+      success: false, 
+      message: "Server Error" 
+    });
   }
 });
 

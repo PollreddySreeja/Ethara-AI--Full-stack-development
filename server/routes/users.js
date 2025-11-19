@@ -14,10 +14,16 @@ router.get("/teachers", async (req, res) => {
       .select("_id email")
       .sort({ email: 1 });
     
-    res.json(teachers);
+    res.json({ 
+      success: true, 
+      data: teachers 
+    });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error" 
+    });
   }
 });
 
@@ -30,13 +36,22 @@ router.get("/:id", authMiddleware, async (req, res) => {
     const user = await User.findById(req.params.id).select("-passwordHash");
     
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ 
+        success: false, 
+        message: "User not found" 
+      });
     }
     
-    res.json(user);
+    res.json({ 
+      success: true, 
+      data: user 
+    });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error" 
+    });
   }
 });
 
@@ -48,17 +63,26 @@ router.get("/my-students", authMiddleware, async (req, res) => {
   try {
     // Verify the user is a teacher
     if (req.user.role !== "teacher") {
-      return res.status(403).json({ message: "Only teachers can access this endpoint" });
+      return res.status(403).json({ 
+        success: false, 
+        message: "Only teachers can access this endpoint" 
+      });
     }
 
     const students = await User.find({ teacherId: req.user._id })
       .select("-passwordHash")
       .sort({ email: 1 });
     
-    res.json(students);
+    res.json({ 
+      success: true, 
+      data: students 
+    });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error" 
+    });
   }
 });
 

@@ -3,6 +3,7 @@ require("dotenv").config();
 const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
+const mongoSanitize = require("express-mongo-sanitize");
 
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/tasks");
@@ -12,6 +13,10 @@ const { errorHandler } = require("./middleware/error");
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Sanitization middleware to prevent injection attacks
+// Removes any keys that start with $ or contain . from user input
+app.use(mongoSanitize());
 
 // ROUTES
 app.use("/auth", authRoutes);

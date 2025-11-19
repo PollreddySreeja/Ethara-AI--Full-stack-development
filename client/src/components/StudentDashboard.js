@@ -26,9 +26,15 @@ export default function StudentDashboard({ onLogout }) {
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTasks(res.data);
+      // Handle new response format: { success: true, data: [...tasks] }
+      setTasks(res.data.data);
     } catch (e) {
       console.error("Failed to load tasks:", e);
+      // Handle token expiration
+      if (e.response?.status === 401) {
+        alert("Your session has expired. Please log in again.");
+        onLogout();
+      }
     }
   };
 
@@ -40,10 +46,16 @@ export default function StudentDashboard({ onLogout }) {
           `http://localhost:5000/users/${user.teacherId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setTeacher(res.data);
+        // Handle new response format: { success: true, data: {...user} }
+        setTeacher(res.data.data);
       }
     } catch (e) {
       console.error("Failed to load teacher:", e);
+      // Handle token expiration
+      if (e.response?.status === 401) {
+        alert("Your session has expired. Please log in again.");
+        onLogout();
+      }
     }
   };
 
@@ -68,7 +80,13 @@ export default function StudentDashboard({ onLogout }) {
       loadTasks();
     } catch (e) {
       console.error("Failed to create task:", e);
-      alert(e.response?.data?.message || "Failed to create task");
+      // Handle token expiration
+      if (e.response?.status === 401) {
+        alert("Your session has expired. Please log in again.");
+        onLogout();
+      } else {
+        alert(e.response?.data?.message || "Failed to create task");
+      }
     }
   };
 
@@ -89,7 +107,13 @@ export default function StudentDashboard({ onLogout }) {
       loadTasks();
     } catch (e) {
       console.error("Failed to update task:", e);
-      alert(e.response?.data?.message || "Failed to update task");
+      // Handle token expiration
+      if (e.response?.status === 401) {
+        alert("Your session has expired. Please log in again.");
+        onLogout();
+      } else {
+        alert(e.response?.data?.message || "Failed to update task");
+      }
     }
   };
 
@@ -107,7 +131,13 @@ export default function StudentDashboard({ onLogout }) {
       loadTasks();
     } catch (e) {
       console.error("Failed to delete task:", e);
-      alert(e.response?.data?.message || "Failed to delete task");
+      // Handle token expiration
+      if (e.response?.status === 401) {
+        alert("Your session has expired. Please log in again.");
+        onLogout();
+      } else {
+        alert(e.response?.data?.message || "Failed to delete task");
+      }
     }
   };
 

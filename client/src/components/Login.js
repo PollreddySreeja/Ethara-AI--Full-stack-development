@@ -7,11 +7,40 @@ function Login({ onLoginSuccess, onSignup }) {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({}); // For inline validation errors
+
+  // Client-side validation
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    // Password validation
+    if (!password) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
     setMessage("");
+    setErrors({});
 
     try {
       const res = await axios.post("http://localhost:5000/auth/login", {
@@ -19,8 +48,9 @@ function Login({ onLoginSuccess, onSignup }) {
         password,
       });
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // Handle new response format: { success: true, data: { token, user, message } }
+      localStorage.setItem("token", res.data.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.data.user));
 
       setMessage("Login successful!");
       
@@ -47,51 +77,69 @@ function Login({ onLoginSuccess, onSignup }) {
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            onChange={(e) => {
+              setEmail(e.target.value);
+              // Clear error when user starts typing
+              if (errors.email) setErrors({ ...errors, email: null });
+            }}
             style={{
               width: "100%",
               padding: "10px",
               fontSize: "14px",
               borderRadius: "4px",
-              border: "1px solid #ccc"
+              border: errors.email ? "1px solid #dc3545" : "1px solid #ccc"
             }}
           />
+          {errors.email && (
+            <div style={{ color: "#dc3545", fontSize: "12px", marginTop: "5px" }}>
+              {errors.email}
+            </div>
+          )}
         </div>
 
-        <div style={{ marginBottom: "15px", position: "relative" }}>
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "10px",
-              fontSize: "14px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              paddingRight: "40px"
-            }}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            style={{
-              position: "absolute",
-              right: "10px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "12px",
-              color: "#0066ff"
-            }}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
+        <div style={{ marginBottom: "15px" }}>
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                // Clear error when user starts typing
+                if (errors.password) setErrors({ ...errors, password: null });
+              }}
+              style={{
+                width: "100%",
+                padding: "10px",
+                fontSize: "14px",
+                borderRadius: "4px",
+                border: errors.password ? "1px solid #dc3545" : "1px solid #ccc",
+                paddingRight: "40px"
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "12px",
+                color: "#0066ff"
+              }}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+          {errors.password && (
+            <div style={{ color: "#dc3545", fontSize: "12px", marginTop: "5px" }}>
+              {errors.password}
+            </div>
+          )}
         </div>
 
         <button
