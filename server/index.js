@@ -6,16 +6,22 @@ const mongoose = require("mongoose");
 
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/tasks");
-const userRoutes = require("./routes/users");   // <-- NEW
+const userRoutes = require("./routes/users");
+const { errorHandler } = require("./middleware/error");
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
 // ROUTES
 app.use("/auth", authRoutes);
 app.use("/tasks", taskRoutes);
-app.use("/users", userRoutes);                  // <-- NEW
+app.use("/users", userRoutes);
 
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
+// Database connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
