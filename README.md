@@ -59,8 +59,8 @@ Team Task Manager is a secure platform for teams to collaborate on projects. It 
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd team-task-manager
+git clone https://github.com/PollreddySreeja/Ethara-AI--Full-stack-development.git
+cd Ethara-AI--Full-stack-development
 ```
 
 ### 2. Backend Setup
@@ -96,6 +96,7 @@ Create a `.env` file in the `server` directory:
 PORT=5000
 MONGO_URI=your_mongodb_connection_string_here
 JWT_SECRET=your_super_secret_jwt_key
+CLIENT_URL=http://localhost:3000
 ```
 
 ## Role-Based Access Control
