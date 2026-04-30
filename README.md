@@ -16,8 +16,6 @@ A full-stack web application where users can create projects, assign tasks, and 
 - [Environment Variables](#environment-variables)
 - [Role-Based Access Control](#role-based-access-control)
 - [API Documentation](#api-documentation)
-- [AI Disclosure](#ai-disclosure)
-- [Known Issues](#known-issues)
 - [Deployment](#deployment)
 
 ## Overview
@@ -141,16 +139,6 @@ CLIENT_URL=http://localhost:3000
 | POST | `/api/tasks` | Create a new task within a project |
 | PUT | `/api/tasks/:id` | Update a task |
 | DELETE | `/api/tasks/:id` | Delete a task (Task Creator or Project Admin only) |
-
-## AI Disclosure
-
-This project was developed with the assistance of AI coding assistants for code generation, refactoring, and documentation. All AI-generated code has been reviewed, modified, and tested by the developer to ensure it meets project requirements and security standards.
-
-## Known Issues
-
-- **Responsive Design:** The dashboard layout may not be fully optimized for very small mobile screens.
-- **Password Reset:** Currently, there is no functionality for users to reset their password if forgotten.
-- **Data Deletion Cascading:** If a user is deleted from the system, tasks assigned to them may still reference their ID instead of displaying "Unassigned".
 
 ## Deployment
 
