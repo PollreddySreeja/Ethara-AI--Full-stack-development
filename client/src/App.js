@@ -1,15 +1,24 @@
 import "./App.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import TeacherDashboard from "./components/TeacherDashboard";
-import StudentDashboard from "./components/StudentDashboard";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   const [page, setPage] = useState("login");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLoginSuccess = () => {
+  // Fix session persistence on refresh
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (token && user) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLoginSuccess = (userData) => {
+    localStorage.setItem("user", JSON.stringify(userData));
     setIsLoggedIn(true);
   };
 
@@ -20,20 +29,25 @@ function App() {
   };
 
   if (isLoggedIn) {
-  const user = JSON.parse(localStorage.getItem("user"));
-
-  return user.role === "teacher"
-    ? <TeacherDashboard onLogout={handleLogout} />
-    : <StudentDashboard onLogout={handleLogout} />;
-}
-
+    return <Dashboard onLogout={handleLogout} />;
+  }
 
   if (page === "login") {
-    return <Login onLoginSuccess={handleLoginSuccess} onSignup={() => setPage("signup")} />;
+    return (
+      <Login
+        onLoginSuccess={handleLoginSuccess}
+        onSignup={() => setPage("signup")}
+      />
+    );
   }
 
   if (page === "signup") {
-    return <Signup onSignupSuccess={() => setPage("login")} />;
+    return (
+      <Signup
+        onSignupSuccess={() => setPage("login")}
+        onLogin={() => setPage("login")}
+      />
+    );
   }
 
   return null;

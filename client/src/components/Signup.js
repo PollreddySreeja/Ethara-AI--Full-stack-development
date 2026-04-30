@@ -1,86 +1,44 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import { signup } from "../api";
 
-function Signup({ onSignupSuccess }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("student");
-  const [teacherId, setTeacherId] = useState("");
+function Signup({ onSignupSuccess, onLogin }) {
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "member" });
   const [msg, setMsg] = useState("");
-  const [teachers, setTeachers] = useState([]); // List of available teachers
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({}); // For inline validation errors
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  // Client-side validation
-  const validateForm = () => {
+  const validate = () => {
     const newErrors = {};
-
-    // Email validation
+    if (!form.name.trim()) newErrors.name = "Name is required";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!emailRegex.test(email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    // Password validation
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    // Teacher ID validation for students
-    if (role === "student" && !teacherId) {
-      newErrors.teacherId = "Please select a teacher";
-    }
-
+    if (!form.email) newErrors.email = "Email is required";
+    else if (!emailRegex.test(form.email)) newErrors.email = "Valid email required";
+    if (!form.password) newErrors.password = "Password is required";
+    else if (form.password.length < 6) newErrors.password = "Min 6 characters";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Fetch all teachers when component mounts
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/users/teachers");
-        // Handle new response format: { success: true, data: [...teachers] }
-        setTeachers(res.data.data);
-      } catch (err) {
-        console.error("Failed to fetch teachers:", err);
-        setMsg("Failed to load teachers list");
-      }
-    };
-
-    fetchTeachers();
-  }, []);
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: null });
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
-
-    // Validate form before submission
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validate()) return;
     setLoading(true);
     setMsg("");
-    setErrors({});
-
     try {
-      const res = await axios.post("http://localhost:5000/auth/signup", {
-        email,
-        password,
-        role,
-        teacherId: role === "student" ? teacherId : null,
-      });
-
-      setMsg("User registered successfully!");
-      setTimeout(() => onSignupSuccess(), 1500); // Redirect after showing success message
+      const res = await signup(form);
+      const { token, user } = res.data.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      setMsg("Account created successfully!");
+      setTimeout(() => onSignupSuccess(), 1500);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || "Signup failed!";
-      setMsg(errorMsg);
+      setMsg(err.response?.data?.message || "Signup failed!");
     } finally {
       setLoading(false);
     }
@@ -90,125 +48,71 @@ function Signup({ onSignupSuccess }) {
     <div className="auth-page">
       <div className="auth-card">
         <h2 className="auth-title">Create Account</h2>
-        
         <form onSubmit={handleSignup} className="auth-form">
-          {/* Email Input */}
+
+          <div className="form-group">
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              value={form.name}
+              onChange={handleChange}
+              className={`form-input ${errors.name ? "error" : ""}`}
+            />
+            {errors.name && <div className="error-message">{errors.name}</div>}
+          </div>
+
           <div className="form-group">
             <input
               type="email"
+              name="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                // Clear error when user starts typing
-                if (errors.email) setErrors({ ...errors, email: null });
-              }}
-              className={`form-input ${errors.email ? 'error' : ''}`}
+              value={form.email}
+              onChange={handleChange}
+              className={`form-input ${errors.email ? "error" : ""}`}
             />
-            {errors.email && (
-              <div className="error-message">
-                {errors.email}
-              </div>
-            )}
+            {errors.email && <div className="error-message">{errors.email}</div>}
           </div>
 
-          {/* Password Input */}
           <div className="form-group">
             <div className="password-wrapper">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
                 placeholder="Password (min 6 characters)"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  // Clear error when user starts typing
-                  if (errors.password) setErrors({ ...errors, password: null });
-                }}
-                minLength={6}
-                className={`form-input ${errors.password ? 'error' : ''}`}
+                value={form.password}
+                onChange={handleChange}
+                className={`form-input ${errors.password ? "error" : ""}`}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="password-toggle"
-              >
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle">
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
-            {errors.password && (
-              <div className="error-message">
-                {errors.password}
-              </div>
-            )}
+            {errors.password && <div className="error-message">{errors.password}</div>}
           </div>
 
-          {/* Role Selection */}
           <div className="form-group">
             <label className="form-label">Select Role:</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="form-select"
-            >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
+            <select name="role" value={form.role} onChange={handleChange} className="form-select">
+              <option value="member">Member</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
 
-          {/* Teacher dropdown for students */}
-          {role === "student" && (
-            <div className="form-group">
-              <label className="form-label">Select Your Teacher:</label>
-              <select
-                value={teacherId}
-                onChange={(e) => {
-                  setTeacherId(e.target.value);
-                  // Clear error when user selects a teacher
-                  if (errors.teacherId) setErrors({ ...errors, teacherId: null });
-                }}
-                className={`form-select ${errors.teacherId ? 'error' : ''}`}
-              >
-                <option value="">-- Select a Teacher --</option>
-                {teachers.map((teacher) => (
-                  <option key={teacher._id} value={teacher._id}>
-                    {teacher.email}
-                  </option>
-                ))}
-              </select>
-              {errors.teacherId && (
-                <div className="error-message">
-                  {errors.teacherId}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-success btn-block"
-          >
-            {loading ? "Signing up..." : "Signup"}
+          <button type="submit" disabled={loading} className="btn btn-success btn-block">
+            {loading ? "Creating account..." : "Signup"}
           </button>
         </form>
 
-        {/* Success/Error Message */}
         {msg && (
           <div className={msg.includes("success") ? "success-message" : "error-banner"}>
             {msg}
           </div>
         )}
 
-        {/* Footer Link */}
         <div className="auth-footer">
           Already have an account?{" "}
-          <button
-            onClick={() => window.location.reload()}
-            className="auth-link"
-          >
-            Login here
-          </button>
+          <button onClick={onLogin} className="auth-link">Login here</button>
         </div>
       </div>
     </div>

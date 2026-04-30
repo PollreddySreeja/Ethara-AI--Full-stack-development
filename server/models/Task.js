@@ -1,23 +1,52 @@
 const mongoose = require("mongoose");
 
-// Task model aligned with PRD specifications
-const TaskSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true }, // PRD specifies required
-  progress: { // Changed from 'status' to 'progress' per PRD
-    type: String,
-    enum: ["not-started", "in-progress", "completed"], // Kebab-case per PRD
-    default: "not-started"
+const taskSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+      maxlength: [200, "Title cannot exceed 200 characters"],
+    },
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["not-started", "in-progress", "completed"],
+      default: "not-started",
+    },
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
+    project: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+      required: true,
+    },
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    dueDate: {
+      type: Date,
+      default: null,
+    },
   },
-  dueDate: { type: Date }, // Optional per PRD
-  userId: { // Changed from 'user' to 'userId' per PRD
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("Task", TaskSchema);
+module.exports = mongoose.model("Task", taskSchema);
 
 
 
