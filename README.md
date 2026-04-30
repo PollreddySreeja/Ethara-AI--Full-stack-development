@@ -1,6 +1,6 @@
 # Full Stack Team Task Manager
-
-A full-stack web application where users can create projects, assign tasks, and track progress with **role-based access (Admin/Member)**. Built with the MERN stack.
+A modern full-stack task management web application that enables teams to collaborate efficiently through project creation, task assignment, and real-time progress tracking.
+Built with a focus on scalability, clean UI, and secure role-based access control (RBAC).
 
 ## Live Demo
 
@@ -40,6 +40,8 @@ Team Task Manager is a secure platform for teams to collaborate on projects. It 
 **Backend:**
 - Node.js
 - Express.js
+
+**Database:**
 - MongoDB with Mongoose ODM
 - JWT for authentication
 - bcryptjs for password hashing
