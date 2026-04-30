@@ -73,7 +73,7 @@ npm install
 Create a `.env` file in the `server` directory (see [Environment Variables](#environment-variables)) and start the server:
 
 ```bash
-npm start
+npm run dev
 ```
 The server will run on `http://localhost:5000`
 
