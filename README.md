@@ -4,7 +4,7 @@ Built with a focus on scalability, clean UI, and secure role-based access contro
 
 ## Live Demo
 
-🔗 **Live URL:** [Team Task Manager on Railway](https://sincere-nourishment-production.up.railway.app/)
+🔗 **Live URL:** https://sincere-nourishment-production.up.railway.app/
 
 ## Table of Contents
 
