@@ -8,8 +8,6 @@ client/node_modules/
 server/.env
 client/.env
 
-# Build output
-client/build/
 
 # OS files
 .DS_Store

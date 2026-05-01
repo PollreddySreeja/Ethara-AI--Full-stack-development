@@ -1,20 +1,29 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 const mongoSanitize = require("express-mongo-sanitize");
 require("dotenv").config();
 
 const app = express();
 
 // Middleware
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",")
+  : ["http://localhost:3000"];
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: function (origin, callback) {
+    // Allow requests with no origin (same-origin, mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
+    callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: "10kb" }));
 app.use(mongoSanitize());
 
-// Routes
+// API Routes
 app.use("/auth", require("./routes/auth"));
 app.use("/projects", require("./routes/projects"));
 app.use("/tasks", require("./routes/tasks"));
@@ -23,10 +32,15 @@ app.use("/users", require("./routes/users"));
 // Health check
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: "Route not found." });
+// ---------- Serve React client in production ----------
+const clientBuildPath = path.join(__dirname, "..", "client", "build");
+app.use(express.static(clientBuildPath));
+
+// Catch-all: send index.html for any non-API route (React Router support)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(clientBuildPath, "index.html"));
 });
+// ------------------------------------------------------
 
 // Global error handler
 app.use((err, req, res, next) => {
