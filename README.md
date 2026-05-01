@@ -1,10 +1,10 @@
 # Full Stack Team Task Manager
-
-A full-stack web application where users can create projects, assign tasks, and track progress with **role-based access (Admin/Member)**. Built with the MERN stack.
+A modern full-stack task management web application that enables teams to collaborate efficiently through project creation, task assignment, and real-time progress tracking.
+Built with a focus on scalability, clean UI, and secure role-based access control (RBAC).
 
 ## Live Demo
 
-🔗 **Live URL:** [Team Task Manager on Railway](https://team-task-manager-production.up.railway.app)
+🔗 **Live URL:** https://sincere-nourishment-production.up.railway.app/
 
 ## Table of Contents
 
@@ -16,8 +16,6 @@ A full-stack web application where users can create projects, assign tasks, and 
 - [Environment Variables](#environment-variables)
 - [Role-Based Access Control](#role-based-access-control)
 - [API Documentation](#api-documentation)
-- [AI Disclosure](#ai-disclosure)
-- [Known Issues](#known-issues)
 - [Deployment](#deployment)
 
 ## Overview
@@ -42,6 +40,8 @@ Team Task Manager is a secure platform for teams to collaborate on projects. It 
 **Backend:**
 - Node.js
 - Express.js
+
+**Database:**
 - MongoDB with Mongoose ODM
 - JWT for authentication
 - bcryptjs for password hashing
@@ -73,7 +73,7 @@ npm install
 Create a `.env` file in the `server` directory (see [Environment Variables](#environment-variables)) and start the server:
 
 ```bash
-npm start
+npm run dev
 ```
 The server will run on `http://localhost:5000`
 
@@ -141,16 +141,6 @@ CLIENT_URL=http://localhost:3000
 | POST | `/api/tasks` | Create a new task within a project |
 | PUT | `/api/tasks/:id` | Update a task |
 | DELETE | `/api/tasks/:id` | Delete a task (Task Creator or Project Admin only) |
-
-## AI Disclosure
-
-This project was developed with the assistance of AI coding assistants for code generation, refactoring, and documentation. All AI-generated code has been reviewed, modified, and tested by the developer to ensure it meets project requirements and security standards.
-
-## Known Issues
-
-- **Responsive Design:** The dashboard layout may not be fully optimized for very small mobile screens.
-- **Password Reset:** Currently, there is no functionality for users to reset their password if forgotten.
-- **Data Deletion Cascading:** If a user is deleted from the system, tasks assigned to them may still reference their ID instead of displaying "Unassigned".
 
 ## Deployment
 
